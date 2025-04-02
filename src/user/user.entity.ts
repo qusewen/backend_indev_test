@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from 'typeorm';
+import {Post} from "../post/post.entity";
 
 @Entity()
 export class User {
@@ -18,4 +19,7 @@ export class User {
         const { password, ...data } = this;
         return data;
     }
+
+    @OneToMany(() => Post, (post) => post.user, { eager: true })
+    posts: Post[]; // Массив записей, созданных пользователем
 }

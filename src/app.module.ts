@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import {AuthModule} from "./auth/auth.module";
+import {PostModule} from "./post/post.module";
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -18,7 +19,8 @@ import {AuthModule} from "./auth/auth.module";
     synchronize: true,
   }),
     UserModule,
-    AuthModule],
+    AuthModule,
+    PostModule],
   controllers: [AppController],
   providers: [AppService],
 })
