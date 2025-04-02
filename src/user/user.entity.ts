@@ -1,6 +1,6 @@
 import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from 'typeorm';
 import {Post} from "../post/post.entity";
-
+import {Comment } from '../comment/comment.entity'
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -22,4 +22,7 @@ export class User {
 
     @OneToMany(() => Post, (post) => post.user, { eager: true })
     posts: Post[]; // Массив записей, созданных пользователем
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments: Comment[];
 }
