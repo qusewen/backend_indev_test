@@ -54,7 +54,7 @@ export class CommentService {
     async deleteComments(id: number) {
         const result = await this.commentRepository.delete({id});
         if (result.affected === 0) {
-            throw new NotFoundException(`Комментарий с id: ${id} не найден`);
+            throw new NotFoundException(`Комментарий с id: ${id} не найден попробуйте другой`);
         }
         return { message: 'Комментарий успешно удален' }
     }
