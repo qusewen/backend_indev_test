@@ -1,9 +1,9 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Post } from './post.entity';
+import {Post, UpdatePostDto} from './post.entity';
 import { User } from '../user/user.entity';
-import { CreatePostDto } from './create-post.dto';
+import {CreatePostDto} from './create-post.dto';
 
 @Injectable()
 export class PostService {
@@ -27,5 +27,38 @@ export class PostService {
         });
 
         return this.postRepository.save(newPost);
+    }
+
+    async deletePost(id: number) {
+        const result = await this.postRepository.delete({id});
+        if (result.affected === 0) {
+            throw new NotFoundException(`Пост с id: ${id} не найден, попробуйте другой`);
+        }
+        return { message: 'Пост успешно удален' }
+    }
+
+    async findAllPost() {
+        return this.postRepository.find({
+            select: ['id', "user", "comments", "text", "title"],
+            relations: ['user', 'comments']
+        });
+    }
+    async findOnePost(id: number) {
+        const result = await this.postRepository.findOneBy({id})
+        if(result) return result
+        else throw 'Пост не найден'
+    }
+
+
+    async updatePost(id: number, updatePost: UpdatePostDto): Promise<Post> {
+        const post = await this.postRepository.findOneBy({ id });
+        if (!post) {
+            throw new NotFoundException(`Пост с id: ${id} не найден`);
+        }
+
+        post.title = updatePost.title ?? post.title;
+        post.text = updatePost.text ?? post.text;
+
+        return this.postRepository.save(post);
     }
 }
