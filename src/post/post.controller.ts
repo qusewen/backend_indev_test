@@ -9,7 +9,7 @@ import {
     HttpCode,
     HttpStatus,
     Param,
-    Patch
+    Patch, Query, BadRequestException
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {CreatePostDto} from "./create-post.dto";
@@ -47,6 +47,24 @@ export class PostController {
     }
 
     @UseGuards(AuthGuard('jwt'))
+    @Get('sort')
+    async sortPosts(
+        @Query('field') field: string,
+        @Query('direction') direction: 'asc' | 'desc' = 'asc'
+    ) {
+        const allowedFields = ['id', 'title', 'text', 'userId'];
+        if (!allowedFields.includes(field)) {
+            throw new BadRequestException('Invalid sorting field');
+        }
+
+        const normalizedDirection = direction.toLowerCase();
+        if (!['asc', 'desc'].includes(normalizedDirection)) {
+            throw new BadRequestException('Invalid sorting direction');
+        }
+        return this.postService.sortPost(field, normalizedDirection as  "asc" | "desc");
+    }
+
+    @UseGuards(AuthGuard('jwt'))
     @Get(':id')
     @HttpCode(HttpStatus.OK)
     async getOnePost(@Param('id') id: number){
@@ -61,5 +79,8 @@ export class PostController {
     ) {
         return this.postService.updatePost(Number(id), updatedPost);
     }
+
+
+
 
 }

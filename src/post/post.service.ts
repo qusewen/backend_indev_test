@@ -43,11 +43,23 @@ export class PostService {
             relations: ['user', 'comments']
         });
     }
+
+    async sortPost(field: string, direction:string) {
+        const orderDirection = direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        return this.postRepository.createQueryBuilder('post')
+            .leftJoinAndSelect('post.user', 'user')
+            .leftJoinAndSelect('post.comments', 'comments')
+            .orderBy(`post.${field}`, orderDirection)
+            .getMany();
+    }
+
     async findOnePost(id: number) {
         const result = await this.postRepository.findOneBy({id})
         if(result) return result
         else throw 'Пост не найден'
     }
+
+
 
 
     async updatePost(id: number, updatePost: UpdatePostDto): Promise<Post> {
