@@ -4,7 +4,7 @@ import { CommentService } from './comment.service';
 import { Comment } from './comment.entity';
 import { PostModule } from '../post/post.module';
 import { UserModule } from '../user/user.module';
-import {CommentController} from "./post.controller";
+import {CommentController} from "./comment.controller";
 import {Post} from "../post/post.entity";
 import {User} from "../user/user.entity";
 

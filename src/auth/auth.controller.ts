@@ -3,6 +3,10 @@ import { AuthService } from '../auth/auth.service';
 import { LoginDto } from './login.dto';
 import {UserService} from "../user/user.service";
 import { Response, Request } from 'express';
+import {ApiBody, ApiOperation, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {authSwaggerExample} from "../constants/swagerExample";
+
+@ApiTags('Auth - авторизация')
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -11,6 +15,10 @@ export class AuthController {
     ) {}
 
     @Post('login')
+    @ApiOperation({ summary: 'Авторизация' })
+    @ApiBody({type: LoginDto})
+    @ApiResponse({ status: 20, description: 'Авторизация прошла успешно', example: authSwaggerExample })
+    @ApiResponse({ status: 401, description: 'Ошибка авторизации' })
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
         const user = await this.userService.findByEmail(loginDto.email);
         if (!user || !(await this.userService.validatePassword(loginDto.password, user.password))) {
@@ -36,6 +44,9 @@ export class AuthController {
     }
 
     @Post('refresh')
+    @ApiOperation({ summary: 'Обновление токена' })
+    @ApiResponse({ status: 200, description: 'Токен обновлен', example: authSwaggerExample })
+    @ApiResponse({ status: 401, description: 'Ошибка обновления токена' })
     async refreshToken(@Req() req: Request, @Res() res: Response) {
         const refreshToken = req.cookies['refresh_token'];
         if (!refreshToken) {
