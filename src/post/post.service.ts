@@ -44,12 +44,24 @@ export class PostService {
         });
     }
 
-    async sortPost(field: string, direction:string) {
+    async sortPost(field: string, direction:string, userId: number | undefined) {
         const orderDirection = direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-        return this.postRepository.createQueryBuilder('post')
+        const query = this.postRepository.createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .leftJoinAndSelect('post.comments', 'comments')
             .orderBy(`post.${field}`, orderDirection)
+            if(userId){
+                query.where(`post.user.id = :userId`, { userId })
+            }
+
+       return query.getMany();
+    }
+
+    async sortPostByUserId(userId: number | undefined) {
+        return this.postRepository.createQueryBuilder('post')
+            .leftJoinAndSelect('post.user', 'user')
+            .leftJoinAndSelect('post.comments', 'comments')
+            .where(`post.user.id = :userId`, { userId })
             .getMany();
     }
 

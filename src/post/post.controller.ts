@@ -58,15 +58,21 @@ export class PostController {
     @ApiOperation({ summary: 'Получение всех постов с возможной сортировкой' })
     @ApiQuery({ name: 'field', required: false, enum: ['id', 'title', 'text', 'userId'] })
     @ApiQuery({ name: 'direction', required: false, enum: ['asc', 'desc'] })
+    @ApiQuery({ name: 'userId', required: false})
     @ApiResponse({ status: 200, description: 'Посты получены', example: [postSwaggerExample] })
     @ApiResponse({ status: 400, description: 'Некорректный параметр сортировки' })
     async getPosts(
         @Query('field') field?: string,
-        @Query('direction') direction?: 'asc' | 'desc'
+        @Query('direction') direction?: 'asc' | 'desc',
+        @Query('userId') userId?: number
     ) {
         const allowedFields = ['id', 'title', 'text', 'userId'];
 
-        if (!field) {
+        if(userId && !field  ){
+            return this.postService.sortPostByUserId(userId)
+        }
+
+        if ( !field ) {
             return this.postService.findAllPost();
         }
 
@@ -79,7 +85,7 @@ export class PostController {
             throw new BadRequestException('Invalid sorting direction');
         }
 
-        return this.postService.sortPost(field, normalizedDirection as 'asc' | 'desc');
+        return this.postService.sortPost(field, normalizedDirection as 'asc' | 'desc', userId);
     }
 
 
