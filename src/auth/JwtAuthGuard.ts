@@ -1,4 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import 'dotenv/config';
 @Injectable()
@@ -6,21 +7,18 @@ export class JwtAuthGuard implements CanActivate {
     constructor(private readonly jwtService: JwtService) {}
 
     canActivate(context: ExecutionContext): boolean {
-        const request = context.switchToHttp().getRequest();
-        const token = request.headers.authorization?.split(' ')[1];
+        const req = context.switchToHttp().getRequest<Request>();
+        const accessToken = req.cookies['access_token'];
 
-        if (!token) {
-            return false; // Без токена доступ запрещён
+        if (!accessToken) {
+            throw new UnauthorizedException('Токен отсутствует');
         }
 
         try {
-            const decodedToken = this.jwtService.verify(token, {
-                secret: process.env.JWT_SECRET,
-            });
-            request.user = decodedToken; // Добавляем пользователя в запрос
-            return true; // Авторизация прошла успешно
+            this.jwtService.verify(accessToken);
+            return true;
         } catch (error) {
-            return false; // Токен невалиден
+            throw new UnauthorizedException('Неверный токен');
         }
     }
 }

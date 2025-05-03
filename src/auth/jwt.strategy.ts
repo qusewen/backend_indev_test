@@ -9,9 +9,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         const secretKey: string = process.env.JWT_SECRET as string;
 
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: ExtractJwt.fromExtractors([(req) => {
+                return req?.cookies?.access_token;
+            }]),
             secretOrKey: secretKey,
         });
+
     }
 
     async validate(payload: any) {
